@@ -1,12 +1,13 @@
 // Hardware used: Arduino UNO, 2 Ultrasonic SONAR Sensor - HC-SR04 sensors, 2 Pager (Vibration) Motors//
 // Aim of the code is to calulate the diifrence in the distances meaured by both SONAR sensors and control the pager motors according to the diffrence of distances.//
+float duration;
 float distance1;  // Distance measured by 1st SONAR Sensor
 float distance2;  // Distance measured by 2ND SONAR Sensor
 float diffrence; // Diffrence of distance measured by SONAR Sensors
 
 // Defines Trig and Echo pins of the Ultrasonic Sensor
 
-int trigPin1 = 3; 
+int trigPin1 = 3;
 int echoPin1 = 4;
 
 int trigPin2 = 6;
@@ -24,7 +25,7 @@ void setup() {
 
   pinMode(trigPin2, OUTPUT); // Sets the trigPin2 as an Output
   pinMode(echoPin2, INPUT); // Sets the echoPin2 as an Input
-
+  Serial.begin(9600);
   pinMode(motorLeft, OUTPUT); // Sets the LEFT Motor as an Output
   pinMode(motorRight, OUTPUT); // Sets the RIGHT Motor as an Output
 
@@ -34,38 +35,72 @@ void loop() {
 
   distance1 = calculateDistance(trigPin1, echoPin1); //Distance returened by first SONAR Sensor
   distance2 = calculateDistance(trigPin2, echoPin2); //Distance returened by second SONAR Sensor
-  delay(300);
   diffrence = distance2 - distance1; //Difference of the distances obtained
+  diffrence = abs(diffrence);
 
-  if (distance1 < 300 ||  distance2 < 300) {
+  if (distance1 < 150 ||  distance2 < 150) {
 
-    if (diffrence < 30 && diffrence > -30) {
-      digitalWrite(motorLeft, HIGH);
-      digitalWrite(motorRight, HIGH);
-      delay(1000);
-    }
-
-    else if (diffrence > 30 && distance1 < distance2) {
-
-      digitalWrite(motorLeft, HIGH);
-      digitalWrite(motorRight, LOW);
-      delay(1000);
-    }
-
-    else if (diffrence > 30 && distance1 > distance2) {
-
-      digitalWrite(motorLeft, LOW);
-      digitalWrite(motorRight, HIGH);
-      delay(1000);
+    if (diffrence < 25) {
+      delay(100);
+      distance1 = calculateDistance(trigPin1, echoPin1); //Distance returened by first SONAR Sensor
+      distance2 = calculateDistance(trigPin2, echoPin2); //Distance returened by second SONAR Sensor
+      diffrence = distance2 - distance1; //Difference of the distances obtained
+      diffrence = abs(diffrence);
+      if (distance1 < 150 ||  distance2 < 150) {
+        if (diffrence < 25) {
+          digitalWrite(motorLeft, HIGH);
+          digitalWrite(motorRight, HIGH);
+          Serial.println("HH");
+          //delay(1000);
+        }
+      }
     }
 
 
+    else if (diffrence > 25 && distance1 < distance2) {
+      delay(100);
+      distance1 = calculateDistance(trigPin1, echoPin1); //Distance returened by first SONAR Sensor
+      distance2 = calculateDistance(trigPin2, echoPin2); //Distance returened by second SONAR Sensor
+      diffrence = distance2 - distance1; //Difference of the distances obtained
+      diffrence = abs(diffrence);
+      if (distance1 < 150 ||  distance2 < 150) {
+        if (diffrence > 25 && distance1 < distance2) {
+          digitalWrite(motorLeft, HIGH);
+          digitalWrite(motorRight, LOW);
+          Serial.println("HL");
+          //  delay(1000);
+        }
+      }
+    }
+
+    else if (diffrence > 25 && distance1 > distance2) {
+      delay(100);
+      distance1 = calculateDistance(trigPin1, echoPin1); //Distance returened by first SONAR Sensor
+      distance2 = calculateDistance(trigPin2, echoPin2); //Distance returened by second SONAR Sensor
+      diffrence = distance2 - distance1; //Difference of the distances obtained
+      diffrence = abs(diffrence);
+      if (distance1 < 150 ||  distance2 < 150) {
+        if (diffrence > 25 && distance1 > distance2) {
+          digitalWrite(motorLeft, LOW);
+          digitalWrite(motorRight, HIGH);
+          Serial.println("LH");
+          // delay(1000);
+        }
+      }
+    }
   }
 
   else {
-    digitalWrite(motorLeft, LOW);
-    digitalWrite(motorRight, LOW);
-    
+    delay(100);
+    distance1 = calculateDistance(trigPin1, echoPin1); //Distance returened by first SONAR Sensor
+    distance2 = calculateDistance(trigPin2, echoPin2); //Distance returened by second SONAR Sensor
+    diffrence = distance2 - distance1; //Difference of the distances obtained
+    diffrence = abs(diffrence);
+    if (distance1 > 150 &&  distance2 > 150) {
+      digitalWrite(motorLeft, LOW);
+      digitalWrite(motorRight, LOW);
+      Serial.println("LL");
+    }
   }
 }
 // Function for calculating the distance measured by the Ultrasonic sensor
@@ -92,3 +127,4 @@ float calculateDistance(int trigPin, int echoPin) {
 
   return distance;
 }
+
